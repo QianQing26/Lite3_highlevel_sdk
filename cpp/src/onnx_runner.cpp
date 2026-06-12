@@ -23,8 +23,11 @@ struct OrtImpl {
         , mem_info(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault))
         , session(env, model_path.c_str(), opts)
     {
-        input_name  = session.GetInputName(0, Ort::AllocatorWithDefaultOptions());
-        output_name = session.GetOutputName(0, Ort::AllocatorWithDefaultOptions());
+        Ort::AllocatorWithDefaultOptions alloc;
+        auto in_name  = session.GetInputNameAllocated(0, alloc);
+        auto out_name = session.GetOutputNameAllocated(0, alloc);
+        input_name  = strdup(in_name.get());
+        output_name = strdup(out_name.get());
     }
 };
 

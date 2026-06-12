@@ -5,11 +5,27 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ========== ONNX Runtime ==========
-# Set this to your ONNX Runtime installation path, e.g.:
-#   cmake .. -DONNXRUNTIME_ROOT=/usr
-#   cmake .. -DONNXRUNTIME_ROOT=~/onnxruntime-linux-aarch64-1.22.0
+# Auto-detect in third_party/onnxruntime, or set manually:
+#   cmake .. -DONNXRUNTIME_ROOT=/path/to/onnxruntime
 set(ONNXRUNTIME_ROOT "" CACHE PATH "Path to ONNX Runtime installation")
+
+if(NOT ONNXRUNTIME_ROOT)
+    set(_BUNDLED "${CMAKE_CURRENT_SOURCE_DIR}/third_party/onnxruntime")
+    if(EXISTS "${_BUNDLED}/include/onnxruntime_cxx_api.h")
+        set(ONNXRUNTIME_ROOT "${_BUNDLED}")
+    endif()
+endif()
+
 set(HAS_ONNX OFF)
+if(ONNXRUNTIME_ROOT)
+    include_directories(${ONNXRUNTIME_ROOT}/include)
+    link_directories(${ONNXRUNTIME_ROOT}/lib)
+    add_definitions(-DHAS_ONNX)
+    set(HAS_ONNX ON)
+    message(STATUS "ONNX Runtime: ${ONNXRUNTIME_ROOT}")
+else()
+    message(STATUS "ONNX Runtime: not found — Bridge + ObsBuilder + CmdProcessor only")
+endif()
 
 # ========== Options ==========
 option(BUILD_EXAMPLES "Build example programs" ON)
@@ -20,41 +36,20 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/bridge
 )
 
-# ========== Library sources ==========
-
-# ONNX runner — only compiled when ONNXRUNTIME_ROOT is set
-if(ONNXRUNTIME_ROOT)
-    include_directories(${ONNXRUNTIME_ROOT}/include)
-    link_directories(${ONNXRUNTIME_ROOT}/lib)
-    add_definitions(-DHAS_ONNX)
-    set(HAS_ONNX ON)
-    message(STATUS "ONNX Runtime: ${ONNXRUNTIME_ROOT}")
-else()
-    message(STATUS "ONNX Runtime: not configured (Bridge + ObsBuilder + CmdProcessor only)")
-endif()
-
 # ========== Library ==========
 if(HAS_ONNX)
     add_library(lite3_highlevel STATIC cpp/src/onnx_runner.cpp)
-else()
-    # Header-only library when ONNX is not configured
-    add_library(lite3_highlevel INTERFACE)
-endif()
-
-if(HAS_ONNX)
     target_include_directories(lite3_highlevel PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/cpp/include
         ${CMAKE_CURRENT_SOURCE_DIR}/bridge
     )
+    target_link_libraries(lite3_highlevel PUBLIC onnxruntime pthread)
 else()
+    add_library(lite3_highlevel INTERFACE)
     target_include_directories(lite3_highlevel INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/cpp/include
         ${CMAKE_CURRENT_SOURCE_DIR}/bridge
     )
-endif()
-
-if(HAS_ONNX)
-    target_link_libraries(lite3_highlevel PUBLIC onnxruntime pthread)
 endif()
 
 # ========== Examples ==========
