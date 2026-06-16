@@ -27,7 +27,7 @@ static volatile bool g_running = true;
 void signal_handler(int) { g_running = false; }
 
 int main(int argc, char* argv[]) {
-    std::string robot_ip   = (argc > 1) ? argv[1] : "192.168.1.2";
+    std::string robot_ip   = (argc > 1) ? argv[1] : "192.168.1.120";
     std::string model_path = (argc > 2) ? argv[2] : "policy.onnx";
 
     std::signal(SIGINT, signal_handler);

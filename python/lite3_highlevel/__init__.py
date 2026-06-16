@@ -13,7 +13,7 @@ Quick start (ONNX policy):
         raw_action = runner.infer(obs)
         return processor.process(raw_action)
 
-    bridge = Bridge(robot_ip="192.168.1.2")
+    bridge = Bridge(robot_ip="192.168.1.120")
     bridge.run(policy, frequency_hz=50)
 
 Quick start (custom policy):
@@ -24,7 +24,7 @@ Quick start (custom policy):
         cmd.joint_pos_des = [0.0, -0.65, 1.30] * 4  # standing pose
         return cmd
 
-    Bridge(robot_ip="192.168.1.2").run(my_policy)
+    Bridge(robot_ip="192.168.1.120").run(my_policy)
 """
 
 from .network_codes import (

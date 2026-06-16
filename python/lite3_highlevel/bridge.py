@@ -105,12 +105,12 @@ class Bridge:
             cmd.joint_pos_des = [...]  # your policy output
             return cmd
 
-        bridge = Bridge(robot_ip="192.168.1.2")
+        bridge = Bridge(robot_ip="192.168.1.120")
         bridge.run(policy, frequency_hz=50)
     """
 
     def __init__(self,
-                 robot_ip: str = "192.168.1.2",
+                 robot_ip: str = "192.168.1.120",
                  recv_port: int = DEFAULT_SENSOR_PORT,
                  send_port: int = DEFAULT_COMMAND_PORT,
                  handshake_timeout: float = 5.0):

@@ -10,7 +10,7 @@ The Bridge automatically handles the handshake protocol:
 Usage:
     python simple_controller.py [robot_ip] [model_path]
 
-Defaults: robot_ip=192.168.1.2, model_path=policy.onnx
+Defaults: robot_ip=192.168.1.120, model_path=policy.onnx
 """
 
 import sys
@@ -25,7 +25,7 @@ from lite3_highlevel import RobotMotionState
 
 
 def main():
-    robot_ip   = sys.argv[1] if len(sys.argv) > 1 else "192.168.1.2"
+    robot_ip   = sys.argv[1] if len(sys.argv) > 1 else "192.168.1.120"
     model_path = sys.argv[2] if len(sys.argv) > 2 else "policy.onnx"
 
     print(f"=== Lite3 Highlevel Controller ===")

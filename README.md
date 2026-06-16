@@ -62,7 +62,7 @@ def policy(state):
     return processor.process(last_action)
 
 # 启动控制循环（阻塞，Ctrl+C 停止）
-bridge = Bridge(robot_ip="192.168.1.2")
+bridge = Bridge(robot_ip="192.168.1.120")
 bridge.run(policy, frequency_hz=50)
 ```
 
@@ -85,7 +85,7 @@ int main() {
     lite3::OnnxRunner runner("policy.onnx");
     lite3::ObsBuilder builder;
     lite3::CmdProcessor processor;
-    lite3::Bridge bridge("192.168.1.2");
+    lite3::Bridge bridge("192.168.1.120");
     bridge.open();
 
     float obs[45], action[12], last_action[12] = {0};
