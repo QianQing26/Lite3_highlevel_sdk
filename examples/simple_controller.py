@@ -2,6 +2,11 @@
 """
 Minimal example: uses an ONNX policy to control Lite3 via the highlevel SDK.
 
+The Bridge automatically handles the handshake protocol:
+  1. Waits for robot to enter RLHandshakeMode (after StandUp).
+  2. Sends HEARTBEAT_READY until robot enters RLControlMode.
+  3. Runs the policy loop at the configured frequency.
+
 Usage:
     python simple_controller.py [robot_ip] [model_path]
 
@@ -16,6 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "python"))
 
 from lite3_highlevel import Bridge, RobotState, JointCommand
 from lite3_highlevel import OnnxRunner, ObsBuilder, CmdProcessor
+from lite3_highlevel import RobotMotionState
 
 
 def main():
@@ -50,12 +56,13 @@ def main():
 
         if tick % 50 == 0:
             rpy_deg = tuple(v * 57.3 for v in state.rpy)
-            print(f"[{tick:5d}] rpy=({rpy_deg[0]:5.1f},{rpy_deg[1]:5.1f},{rpy_deg[2]:5.1f}) deg"
-                  f"  cmd_vel=({state.cmd_vel[0]:.2f},{state.cmd_vel[1]:.2f},{state.cmd_vel[2]:.2f})")
+            print(f"[{tick:5d}] state={state.current_state} "
+                  f"rpy=({rpy_deg[0]:5.1f},{rpy_deg[1]:5.1f},{rpy_deg[2]:5.1f}) deg "
+                  f"cmd_vel=({state.cmd_vel[0]:.2f},{state.cmd_vel[1]:.2f},{state.cmd_vel[2]:.2f})")
 
         return cmd
 
-    # Run control loop
+    # Run control loop — Bridge handles handshake automatically
     bridge = Bridge(robot_ip=robot_ip)
     try:
         bridge.run(policy, frequency_hz=50)

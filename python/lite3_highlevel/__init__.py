@@ -28,16 +28,32 @@ Quick start (custom policy):
 """
 
 from .network_codes import (
+    # Port defaults
     DEFAULT_SENSOR_PORT, DEFAULT_COMMAND_PORT,
+    # Packet sizes
     SENSOR_PACKET_SIZE, COMMAND_PACKET_SIZE,
-    SHUTDOWN_SEQUENCE,
+    # Sentinel / heartbeat
+    SHUTDOWN_SEQUENCE, HEARTBEAT_READY, HEARTBEAT_SHUTDOWN,
+    # Robot motion state enum (for inspecting state.current_state)
+    RobotMotionState, StateName,
 )
-from .bridge import Bridge, RobotState, JointCommand, PolicyCallback
+from .bridge import (
+    Bridge, RobotState, JointCommand, PolicyCallback,
+    HandshakeState,
+)
 from .observation import ObsBuilder, CmdProcessor
 from .onnx_runner import OnnxRunner
 
 __all__ = [
+    # Bridge
     "Bridge", "RobotState", "JointCommand", "PolicyCallback",
-    "ObsBuilder", "CmdProcessor", "OnnxRunner",
+    "HandshakeState",
+    # Observation & processing
+    "ObsBuilder", "CmdProcessor",
+    # ONNX inference
+    "OnnxRunner",
+    # Network codes
     "DEFAULT_SENSOR_PORT", "DEFAULT_COMMAND_PORT",
+    "SHUTDOWN_SEQUENCE", "HEARTBEAT_READY", "HEARTBEAT_SHUTDOWN",
+    "RobotMotionState", "StateName",
 ]

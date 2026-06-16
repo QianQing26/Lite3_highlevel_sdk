@@ -23,5 +23,28 @@ assert struct.calcsize(_SENSOR_FMT) == SENSOR_PACKET_SIZE, \
 assert struct.calcsize(_COMMAND_FMT) == COMMAND_PACKET_SIZE, \
     f"CommandPacket size mismatch: {struct.calcsize(_COMMAND_FMT)} != {COMMAND_PACKET_SIZE}"
 
-# --- Sentinel ---
+# --- Sentinel values ---
 SHUTDOWN_SEQUENCE = 0xFFFFFFFF
+
+# --- Heartbeat values (mirrors nx_network_codes.hpp) ---
+HEARTBEAT_SHUTDOWN = 0          # NX sends this heartbeat to stop communication
+HEARTBEAT_READY    = 0x0B0B0B0B # NX sends this to signal readiness for RL control
+
+# --- RobotMotionState enum (mirrors types/custom_types.h) ---
+# These are the possible values of SensorPacket.current_state.
+class RobotMotionState:
+    WaitingForStand   = 0  # Idle — waiting for stand-up command
+    StandingUp        = 1  # Executing cubic-spline stand-up sequence
+    JointDamping      = 2  # Safety fallback — passive joint damping
+    RLHandshakeMode   = 5  # Waiting for NX to send HEARTBEAT_READY
+    RLControlMode     = 6  # Receiving commands from NX, normal operation
+
+# --- State name constants (mirrors types/custom_types.h) ---
+# These are internal state machine identifiers (not sent over the wire).
+class StateName:
+    kInvalid      = -1
+    kIdle         = 0
+    kStandUp      = 1
+    kJointDamping = 2
+    kRLHandshake  = 5
+    kRLControl    = 6

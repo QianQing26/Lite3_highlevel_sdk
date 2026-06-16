@@ -69,6 +69,23 @@ pip install onnxruntime numpy
 | Change PD gains | `observation.py` `CmdProcessor.__init__` or `observation.hpp` `CmdConfig` |
 | Change control frequency | Pass `frequency_hz` to `bridge.run()` or modify sleep in C++ loop |
 | Change robot IP | Pass `robot_ip` to `Bridge(robot_ip)` |
+| Change handshake timeout | Pass `handshake_timeout` to `Bridge(...)` or `bridge.setHandshakeTimeout()` |
+| Inspect robot motion state | `state.current_state` — see `RobotMotionState` in `network_codes.*` |
+| Check handshake state | Python: `HandshakeState` enum; C++: `bridge.getHandshakeState()` |
+
+## Handshake Protocol
+
+Before the policy control loop begins, the Bridge performs a one-way handshake:
+
+1. **DISCONNECTED**: Bridge waits for `SensorPacket.current_state == RLHandshakeMode (5)`.
+2. **HANDSHAKING**: Bridge sends `CommandPacket(heartbeat=HEARTBEAT_READY)` until the robot enters RLControlMode.
+3. **ESTABLISHED**: Policy loop runs normally.
+
+If the robot drops to JointDamping at any point, the Bridge reverts to DISCONNECTED.
+
+- Python `Bridge.run()` handles this automatically.
+- C++ users call `bridge.updateHandshake(robot_state)` in their loop, and check `bridge.getHandshakeState()` to decide their action (see `simple_controller.cpp`).
+- Handshake timeout default: 5 s (NX side), 3 s (RK3588 side).
 
 ## Relationship to Lite3_lowlevel_sdk
 
